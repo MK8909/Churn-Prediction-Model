@@ -17,7 +17,7 @@ import pickle
 
 
 ####DATA LOA
-data_path ="/content/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+data_path ="c:/Users/Windows10/Downloads/customer_churn_model.pkl"
 
 
 
@@ -56,7 +56,7 @@ for columns in object_cols:
 
 ## save encoder to pickle file
 
-with open("encoders.pkl","wb") as f:
+with open("c:/Users/Windows10/Downloads/encoders.pkl","wb") as f:
   pickle.dump(encoders,f)
 
 x=df.drop(columns=["Churn"])
