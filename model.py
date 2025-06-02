@@ -19,10 +19,6 @@ import pickle
 data_path ="WA_Fn-UseC_-Telco-Customer-Churn.csv"
 
 
-
-
-
-
 df = pd.read_csv(data_path, header=0)  # Add header names later if needed
 
 
@@ -33,21 +29,84 @@ df = pd.read_csv(data_path, header=0)  # Add header names later if needed
 dfcopy=df.copy()
 df.head(5)
 
-
-
+# Create a proper copy of the DataFrame (note the parentheses)
 df = dfcopy
 
-df.drop('customerID', axis=1, inplace=True)
+# Check the shape of the DataFrame
+print(df.shape)
 
+# Set pandas to display all columns (you need to specify None or a number)
+
+
+# Display the first 5 rows
+df.head(5)
+df.info()
+df=dfcopy
+
+df.drop('customerID', axis=1, inplace=True)  # Modifies df directly, returns None
+df.head(3)  # Now works because df was modified in place
+
+
+## printing unique values of a column
+print(df['gender'].unique())
+
+
+
+df.columns
+
+numerical_columns = ['Tenure', 'MonthlyCharges', 'TotalCharges']
+
+for col in df.columns:
+ if col not in numerical_columns:
+  print(col,df[col].unique())
+  print("-"*50)
+
+df.isnull().sum() ## to check how mnay null or missing
+
+
+## Option 1: Handle errors during conversion
+#df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce').astype('float')
+
+## Option 2: Replace blanks/whitespace first
 df['TotalCharges'] = df['TotalCharges'].str.strip()
 df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce').astype('float')
 
-df.dropna(inplace=True)               ###CHANGES HERE
+
+print(df['TotalCharges'].dtype)  # Should show 'float64'
+print(df['TotalCharges'].head())  
+
+def plot_histogram(df, column_name):
+    plt.figure(figsize=(5, 3))
+    # Plot histogram with KDE
+    sns.histplot(df[column_name], kde=True)
+    plt.title(f"Distribution of {column_name}")
+
+    # Calculate mean and median
+    col_mean = df[column_name].mean()
+    col_median = df[column_name].median()
+
+    # Add vertical lines for mean and median
+    plt.axvline(col_mean, color="red", linestyle="dashed", label="Mean")
+    plt.axvline(col_median, color="green", linestyle="dashed", label="Median")
+
+    # Add legend
+    plt.legend()
+    plt.show()
 
 object_cols=df.select_dtypes(include="object").columns
 object_cols
 
+object_cols=df.select_dtypes(include="object").columns.to_list()
+object_cols=["SeniorCitizen"]+object_cols
+
+for col in object_cols:
+  plt.figure(figsize=(5, 3))
+  sns.countplot(x=df[col])
+  plt.title(f"Distribution of {col}")
+  plt.show()
+
 df["Churn"]=df["Churn"].replace({"Yes":1,"No":0})
+df.head(3)
 
 encoders={}
 
@@ -63,8 +122,14 @@ for columns in object_cols:
 with open("encoders.pkl","wb") as f:
   pickle.dump(encoders,f)
 
+
 x=df.drop(columns=["Churn"])
 y=df["Churn"]
+
+print(x)
+
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=42)
+
 
 smote=SMOTE(random_state=42)
 # Drop rows with any missing values
@@ -77,8 +142,9 @@ y_train=y_train_clean
 smote = SMOTE()
 x_train_smote, y_train_smote = smote.fit_resample(x_train, y_train)
 
-
 from imblearn.over_sampling import SMOTE
+print("Resampled features shape:", x_train_smote.shape)
+print("Resampled target shape:", y_train_smote.shape)
 
 models={
     "DecisionTree":DecisionTreeClassifier(random_state=42),
@@ -100,8 +166,12 @@ for model_name, model in models.items():
     print(f"{model_name} Cross-Validation Accuracy: {scores.mean():.4f} (+/- {scores.std() * 2:.4f}")
 
 
+
+
+
 rfc=RandomForestClassifier(random_state=42)
 rfc.fit(x_train_smote,y_train_smote)
+
 
 y_test_pred=rfc.predict(x_test)
 print(y_test.value_counts())  ## from confusion matrix-->outof 1036 zeros->873 correctly identified as zero and out of 373 1's-.273 correctly identifired
@@ -109,11 +179,13 @@ print("Accuracy score:\n",accuracy_score(y_test,y_test_pred))
 print("confusion matrix:\n",confusion_matrix(y_test,y_test_pred))
 print("classification report:\n",classification_report(y_test,y_test_pred))
 
+
 model_data={"rfc":rfc,"feature_names":x.columns.tolist()}
 
 
-with open("encoders.pkl","wb") as f:
+with open("customer_churn_model.pkl","wb") as f:
   pickle.dump(model_data,f)
+
 
 ##load saved model and feature names
 with open("customer_churn_model.pkl","rb") as f:
@@ -121,7 +193,104 @@ with open("customer_churn_model.pkl","rb") as f:
 
 loaded_model=model_data["rfc"]
 feature_names=model_data["feature_names"]
-RandomForestClassifier(random_state=42)
+
+
+
+
+
+
+
+
+'''input_data = {
+    "gender": "Female",
+    "SeniorCitizen": 0,
+    "Partner": "Yes",
+    "Dependents": "No",
+    "tenure": 1,
+    "PhoneService": "No",
+    "MultipleLines": "No phone service",
+    "InternetService": "DSL",
+    "OnlineSecurity": "No",
+    "OnlineBackup": "Yes",
+    "DeviceProtection": "No",
+    "TechSupport": "No",
+    "StreamingTV": "No",
+    "StreamingMovies": "No",
+    "Contract": "Month-to-month",
+    "PaperlessBilling": "Yes",
+    "PaymentMethod": "Electronic check",
+    "MonthlyCharges": 29.85,
+    "TotalCharges": 29.85
+ }
+
+input_data_df=pd.DataFrame([input_data])
+
+with open("encoders.pkl","rb") as f:
+  encoders=pickle.load(f)
+
+print(input_data_df.head())
+
+for column,encoder in encoders.items():
+  input_data_df[column]=encoder.transform(input_data_df[column]) '''
+
+
+import pandas as pd
+import pickle
+
+input_data = {
+    "gender": "Female",
+    "SeniorCitizen": 0,
+    "Partner": "Yes",
+    "Dependents": "No",
+    "tenure": 1,
+    "PhoneService": "No",
+    "MultipleLines": "No phone service",
+    "InternetService": "DSL",
+    "OnlineSecurity": "No",
+    "OnlineBackup": "Yes",
+    "DeviceProtection": "No",
+    "TechSupport": "No",
+    "StreamingTV": "No",
+    "StreamingMovies": "No",
+    "Contract": "Month-to-month",
+    "PaperlessBilling": "Yes",
+    "PaymentMethod": "Electronic check",
+    "MonthlyCharges": 29.85,
+    "TotalCharges": 29.85
+}
+
+input_data_df = pd.DataFrame([input_data])
+
+with open("encoders.pkl", "rb") as f:
+    encoders = pickle.load(f)
+
+# Only transform columns that exist in both DataFrames
+for column in input_data_df.columns:
+    if column in encoders:
+        input_data_df[column] = encoders[column].transform(input_data_df[column])
+
+print(input_data_df.head())
+
+
+
+##make prediction
+
+prediction=loaded_model.predict(input_data_df)
+print(prediction)
+
+pred_prob=loaded_model.predict_proba(input_data_df)
+print(pred_prob)
+
+##result
+
+print(f"Prediction:{'Churn' if prediction[0]==1  else 'No Churn' }")
+print(f"Prediction Probablity: {pred_prob}")
+
+
+
+
+
+
 
 
 import pandas as pd
