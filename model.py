@@ -42,6 +42,8 @@ df.drop('customerID', axis=1, inplace=True)
 df['TotalCharges'] = df['TotalCharges'].str.strip()
 df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce').astype('float')
 
+df.dropna(inplace=True)               ###CHANGES HERE
+
 object_cols=df.select_dtypes(include="object").columns
 object_cols
 
