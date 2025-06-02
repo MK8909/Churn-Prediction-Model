@@ -291,6 +291,8 @@ def main():
             st.write(f"Probability of Churn: {result['probability']['Churn']:.1%}")
             st.write(f"Probability of No Churn: {result['probability']['No Churn']:.1%}")
 
+
+
 if __name__ == "__main__":
     main()
 
