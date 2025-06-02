@@ -16,7 +16,8 @@ import pickle
 
 
 ####DATA LOA
-data_path = "WA_Fn-UseC_-Telco-Customer-Churn.csv"
+data_path = "https://github.com/MK8909/Churn-Prediction-Model/main/model/Wa_Fn-UseC_-Telco-Customer-Churn.csv"
+
 
 
 
@@ -57,7 +58,7 @@ for columns in object_cols:
 
 ## save encoder to pickle file
 
-with open("encoders.pkl","wb") as f:
+with open("https://github.com/MK8909/Churn-Prediction-Model/main/encoders.pkl","wb") as f:
   pickle.dump(encoders,f)
 
 x=df.drop(columns=["Churn"])
@@ -109,7 +110,7 @@ print("classification report:\n",classification_report(y_test,y_test_pred))
 model_data={"rfc":rfc,"feature_names":x.columns.tolist()}
 
 
-with open("customer_churn_model.pkl","wb") as f:
+with open("https://github.com/MK8909/Churn-Prediction-Model/main/customer_churn_model.pkl","wb") as f:
   pickle.dump(model_data,f)
 
 ##load saved model and feature names
