@@ -3,9 +3,10 @@ import pickle
 from sklearn.preprocessing import LabelEncoder
 
 # 1. Load the model file
-with open("c:\Users\Windows10\Downloads\customer_churn_model.pkl", "rb") as f:
-    model_data = pickle.load(f)
-
+'''with open("c:\Users\Windows10\Downloads\customer_churn_model.pkl", "rb") as f:
+    '''
+with open("customer_churn_model.pkl", "rb") as f:
+  model_data = pickle.load(f)
 # 2. Check what's in the loaded file
 print("Keys in model file:", model_data.keys())  # This shows it has 'rfc' and 'feature_names'
 
@@ -13,7 +14,8 @@ print("Keys in model file:", model_data.keys())  # This shows it has 'rfc' and '
 loaded_model = model_data['rfc']
 
 # 4. Load encoders - make sure the path is correct
-with open("c:\Users\Windows10\Downloads\encoders.pkl", "rb") as f:
+'''with open("c:\Users\Windows10\Downloads\encoders.pkl", "rb") as f:'''
+with open("encoders.pkl","rb") as f:    
     encoders = pickle.load(f)
 
 # 5. Prepare input data
