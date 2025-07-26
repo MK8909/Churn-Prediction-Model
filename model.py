@@ -1,5 +1,74 @@
-
 import pandas as pd
+import pickle
+from sklearn.preprocessing import LabelEncoder
+
+# 1. Load the model file
+with open("c:/Users/Windows10/Downloads/customer_churn_model.pkl", "rb") as f:
+    model_data = pickle.load(f)
+
+# 2. Check what's in the loaded file
+print("Keys in model file:", model_data.keys())  # This shows it has 'rfc' and 'feature_names'
+
+# 3. Extract the actual model - using the correct key 'rfc' instead of 'classifier'
+loaded_model = model_data['rfc']
+
+# 4. Load encoders - make sure the path is correct
+with open("c:/Users/Windows10/Downloads/encoders.pkl", "rb") as f:
+    encoders = pickle.load(f)
+
+# 5. Prepare input data
+input_data = {
+    "gender": "Female",
+    "SeniorCitizen": 0,
+    "Partner": "Yes",
+    "Dependents": "No",
+    "tenure": 1,
+    "PhoneService": "No",
+    "MultipleLines": "No phone service",
+    "InternetService": "DSL",
+    "OnlineSecurity": "No",
+    "OnlineBackup": "Yes",
+    "DeviceProtection": "No",
+    "TechSupport": "No",
+    "StreamingTV": "No",
+    "StreamingMovies": "No",
+    "Contract": "Month-to-month",
+    "PaperlessBilling": "Yes",
+    "PaymentMethod": "Electronic check",
+    "MonthlyCharges": 29.85,
+    "TotalCharges": 29.85
+}
+
+input_data_df = pd.DataFrame([input_data])
+
+# 6. Transform categorical features - ensure all columns exist in encoders
+for column in input_data_df.columns:
+    if column in encoders:
+        input_data_df[column] = encoders[column].transform(input_data_df[column])
+
+# 7. Reorder columns to match training data if needed
+if 'feature_names' in model_data:
+    input_data_df = input_data_df[model_data['feature_names']]
+
+# 8. Make prediction
+try:
+    prediction = loaded_model.predict(input_data_df)
+    pred_prob = loaded_model.predict_proba(input_data_df)
+    
+    print(f"Prediction: {'Churn' if prediction[0] == 1 else 'No Churn'}")
+    print(f"Prediction Probability: {pred_prob[0]}")
+except Exception as e:
+    print("Prediction failed:", e)
+    print("Model type:", type(loaded_model))
+    print("Does model have predict method?", hasattr(loaded_model, 'predict'))
+
+
+
+
+
+
+
+'''import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -200,38 +269,6 @@ feature_names=model_data["feature_names"]
 
 
 
-
-'''input_data = {
-    "gender": "Female",
-    "SeniorCitizen": 0,
-    "Partner": "Yes",
-    "Dependents": "No",
-    "tenure": 1,
-    "PhoneService": "No",
-    "MultipleLines": "No phone service",
-    "InternetService": "DSL",
-    "OnlineSecurity": "No",
-    "OnlineBackup": "Yes",
-    "DeviceProtection": "No",
-    "TechSupport": "No",
-    "StreamingTV": "No",
-    "StreamingMovies": "No",
-    "Contract": "Month-to-month",
-    "PaperlessBilling": "Yes",
-    "PaymentMethod": "Electronic check",
-    "MonthlyCharges": 29.85,
-    "TotalCharges": 29.85
- }
-
-input_data_df=pd.DataFrame([input_data])
-
-with open("encoders.pkl","rb") as f:
-  encoders=pickle.load(f)
-
-print(input_data_df.head())
-
-for column,encoder in encoders.items():
-  input_data_df[column]=encoder.transform(input_data_df[column]) '''
 
 
 import pandas as pd
@@ -466,5 +503,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()'''
 
