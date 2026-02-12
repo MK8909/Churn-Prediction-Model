@@ -12,3 +12,5 @@ uvicorn[standard]
 imbalanced-learn
 python-multipart
 pydantic
+uvicorn
+
