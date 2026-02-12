@@ -5,9 +5,9 @@ import streamlit as st
 # Load model and encoders
 @st.cache_resource
 def load_artifacts():
-    with open("customer_churn_model.pkl", "rb") as f:
+    with open("customer_churn_model_new.pkl", "rb") as f:
         model_data = pickle.load(f)
-    with open("encoders.pkl", "rb") as f:
+    with open("encoders_new.pkl", "rb") as f:
         encoders = pickle.load(f)
     return model_data['rfc'], encoders, model_data['feature_names']
 
